@@ -29,6 +29,11 @@ def show_posts():
     posts = get_data("posts")
     return render_template('home.html')
 
+@app.route('/comments')
+def show_comments():
+    comments = get_data("comments")
+    return render_template('comments.html', comments=comments)
+
 # API do ustawiania liczby wyświetlanych elementów
 @app.route('/api/set-display-count', methods=['POST'])
 def set_display_count():
