@@ -27,7 +27,7 @@ def get_data(endpoint):
 @app.route('/')
 def show_posts():
     posts = get_data("posts")
-    return render_template('posts.html', posts=posts)
+    return render_template('home.html')
 
 # API do ustawiania liczby wyświetlanych elementów
 @app.route('/api/set-display-count', methods=['POST'])
@@ -37,7 +37,7 @@ def set_display_count():
     return jsonify({"message": "Display count set successfully"})
 
 # Wyszukiwarka postów
-@app.route('/search', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def search_posts():
     if request.method == 'POST':
         min_chars = request.form.get('min_chars')
@@ -45,9 +45,9 @@ def search_posts():
         # Tutaj można przefiltrować posty na podstawie liczby znaków
         posts = get_data("posts")
         filtered_posts = [post for post in posts if len(post['body']) >= int(min_chars) and len(post['body']) <= int(max_chars)]
-        return render_template('posts.html', posts=filtered_posts)
+        return render_template('home.html', posts=filtered_posts)
     else:
-        return render_template('search.html')
+        return render_template('home.html')
 
 
 
