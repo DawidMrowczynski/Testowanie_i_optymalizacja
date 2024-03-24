@@ -29,6 +29,16 @@ def show_posts():
     posts = get_data("posts")
     return render_template('home.html')
 
+@app.route('/comments')
+def show_comments():
+    comments = get_data("comments")
+    return render_template('comments.html', comments=comments)
+
+@app.route('/albums')
+def show_albums():
+    albums = get_data("albums")
+    return render_template('albums.html', albums=albums)
+
 # Wyszukiwarka postów
 @app.route('/', methods=['GET', 'POST'])
 def search_posts():
