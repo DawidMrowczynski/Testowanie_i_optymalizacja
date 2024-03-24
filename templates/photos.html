@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photos</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+{% include 'navbar.html' %}
+    <div class="container">
+        <h1>Search Photos</h1>
+        <form method="post" action="/photos">
+            <div class="form-group">
+                <label for="Amount_of_photos">Amount of photos</label>
+                <input type="number" class="form-control" id="Amount_of_photos" name="Amount_of_photos" required>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+<div class="container">
+    <h1>Photos</h1>
+    {% if photos %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>URL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for photo in photos %}
+            <tr>
+                <td>{{ photo.get('id') }}</td>
+                <td>{{ photo.get('title') }}</td>
+                <td><img src="{{ photo.get('url') }}" alt="Photo" style="max-width: 200px;"></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No photos available.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
