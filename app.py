@@ -39,13 +39,6 @@ def show_albums():
     albums = get_data("albums")
     return render_template('albums.html', albums=albums)
 
-# API do ustawiania liczby wyświetlanych elementów
-@app.route('/api/set-display-count', methods=['POST'])
-def set_display_count():
-    data = request.json
-    # Tutaj można zapisać nową liczbę wyświetlanych elementów
-    return jsonify({"message": "Display count set successfully"})
-
 # Wyszukiwarka postów
 @app.route('/', methods=['GET', 'POST'])
 def search_posts():
@@ -58,8 +51,19 @@ def search_posts():
         return render_template('home.html', posts=filtered_posts)
     else:
         return render_template('home.html')
+@app.route('/photos', methods=['GET', 'POST'])
+def search_photos():
+    if request.method == 'POST':
+        amount = request.form.get('Amount_of_photos')
+        photos = get_data("photos")
+        filred_photos = photos[:int(amount)]
+        return render_template('photos.html', photos=filred_photos)
+    else:
+        return render_template('photos.html')
 
-
-
+@app.route('/photos')
+def show_photos():
+    photos = get_data("photos")
+    return render_template('photos.html')
 if __name__ == "__main__":
     app.run(debug=True)
