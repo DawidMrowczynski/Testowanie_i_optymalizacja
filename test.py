@@ -1,17 +1,50 @@
 import unittest
+from unittest.mock import patch
+
 import requests_mock
 from app import app, get_data
 
 class TestApp(unittest.TestCase):
 
+    def setUp(self):
+        self.app = app.test_client()
+
+    @patch('logging.Logger.info')
+    def test_home_logging(self, mock_log):
+        response = self.app.get('/')
+        self.assertEqual(response.status_code, 200)
+        mock_log.assert_called_once_with('Home page accessed')
+
+    @patch('logging.Logger.error')
+    def test_error_logging(self, mock_log):
+        response = self.app.get('/error')
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(mock_log.call_count, 2)
+        mock_log.assert_any_call('An error occurred!')
+        mock_log.assert_any_call('Server Error', exc_info=True)
     @requests_mock.Mocker()
     def test_get_data_success(self, mock_request):
         mock_request.get('https://jsonplaceholder.typicode.com/posts', json=[{'id': 1, 'title': 'Test Title', 'body': 'Test Body'}])
         data = get_data('posts')
-
         # Sprawdzenie czy funkcja zwraca poprawne dane
         self.assertEqual(data, [{'id': 1, 'title': 'Test Title', 'body': 'Test Body'}])
 
+    @requests_mock.Mocker()
+    def test_albums_data_structure(self, mock_request):
+        expected_albums = [
+            {'id': 1, 'title': 'Album One'},
+            {'id': 2, 'title': 'Album Two'}
+        ]
+        mock_request.get('https://jsonplaceholder.typicode.com/albums', json=expected_albums, status_code=200)
+
+        response = get_data('albums')
+        self.assertIsNotNone(response)
+        self.assertIsInstance(response, list)
+        for album in response:
+            self.assertIn('id', album)
+            self.assertIn('title', album)
+            self.assertIsInstance(album['id'], int)
+            self.assertIsInstance(album['title'], str)
     @requests_mock.Mocker()
     def test_get_data_failure(self, mock_request):
         # Konfiguracja mocka dla zwracania statusu 404

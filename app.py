@@ -1,11 +1,35 @@
 from flask import Flask, render_template, jsonify, request
 import requests
+import logging
+from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 
+# Create a logger object
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # Set the log level
 
+# Create file handler which logs even debug messages
+file_handler = RotatingFileHandler('app.log', maxBytes=1024*1024*100, backupCount=10)  # 100MB per file
+file_handler.setLevel(logging.INFO)  # Ensure this matches the desired log level
+
+# Create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+
+# Add handlers to the logger
+logger.addHandler(file_handler)
+@app.errorhandler(404)
+def page_not_found(e):
+    app.logger.error(f'Page not found: {e}', exc_info=True)
+    return 'This page does not exist', 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    app.logger.error(f'Internal server error: {e}', exc_info=True)
+    return 'Internal server error', 500
 
 @app.after_request
 def after_request(response):
