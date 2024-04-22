@@ -88,7 +88,23 @@ class TestApp(unittest.TestCase):
                 self.assertEqual(len(filtered_data['posts']), 0)  
             else:
                 self.fail("Filtered data is None")
-            self.assertEqual(len(filtered_data['posts']), 0)  
+            self.assertEqual(len(filtered_data['posts']), 0)
 
+    @requests_mock.Mocker()
+    def test_albums_endpoint(self, mock_request):
+        # Przykładowe dane, które powinny zostać zwrócone przez API
+        mock_data = [{'id': 1, 'title': 'Album One'}, {'id': 2, 'title': 'Album Two'}]
+        mock_request.get('https://jsonplaceholder.typicode.com/albums', json=mock_data, status_code=200)
+
+        # Wywołanie funkcji, która pobiera dane
+        response = get_data('albums')
+
+        # Sprawdzanie, czy dane są zgodne z oczekiwaniami
+        self.assertIsNotNone(response)
+        self.assertEqual(len(response), 2)
+        self.assertEqual(response[0]['id'], 1)
+        self.assertEqual(response[0]['title'], 'Album One')
+        self.assertEqual(response[1]['id'], 2)
+        self.assertEqual(response[1]['title'], 'Album Two')
 if __name__ == '__main__':
     unittest.main()
