@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify, request
 import requests
 import logging
 from logging.handlers import RotatingFileHandler
+from memory_profiler import profile
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
@@ -22,16 +23,19 @@ file_handler.setFormatter(formatter)
 # Add handlers to the logger
 logger.addHandler(file_handler)
 @app.errorhandler(404)
+@profile
 def page_not_found(e):
     app.logger.error(f'Page not found: {e}', exc_info=True)
     return 'This page does not exist', 404
 
 @app.errorhandler(500)
+@profile
 def internal_server_error(e):
     app.logger.error(f'Internal server error: {e}', exc_info=True)
     return 'Internal server error', 500
 
 @app.after_request
+@profile
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Expires"] = 0
@@ -39,6 +43,7 @@ def after_request(response):
     return response
 
 # Funkcja pomocnicza do pobierania danych z API
+@profile
 def get_data(endpoint):
     response = requests.get(f"https://jsonplaceholder.typicode.com/{endpoint}")
     if response.status_code == 200:
@@ -49,22 +54,26 @@ def get_data(endpoint):
 
 # Strona główna wyświetlająca posty
 @app.route('/')
+@profile
 def show_posts():
     posts = get_data("posts")
     return render_template('home.html')
 
 @app.route('/comments')
+@profile
 def show_comments():
     comments = get_data("comments")
     return render_template('comments.html', comments=comments)
 
 @app.route('/albums')
+@profile
 def show_albums():
     albums = get_data("albums")
     return render_template('albums.html', albums=albums)
 
 # Wyszukiwarka postów
 @app.route('/', methods=['GET', 'POST'])
+@profile
 def search_posts():
     if request.method == 'POST':
         min_chars = request.form.get('min_chars')
@@ -76,6 +85,7 @@ def search_posts():
     else:
         return render_template('home.html')
 @app.route('/photos', methods=['GET', 'POST'])
+@profile
 def search_photos():
     if request.method == 'POST':
         amount = request.form.get('Amount_of_photos')
@@ -86,6 +96,7 @@ def search_photos():
         return render_template('photos.html')
 
 @app.route('/photos')
+@profile
 def show_photos():
     photos = get_data("photos")
     return render_template('photos.html')
